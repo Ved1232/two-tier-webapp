@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Create Task</h5>
+
+        {% if error %}
+          <div class="alert alert-danger mb-3">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('ui_create_task') }}">
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input name="title" class="form-control" required maxlength="200" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+              <option value="PENDING" selected>PENDING</option>
+              <option value="IN_PROGRESS">IN_PROGRESS</option>
+              <option value="DONE">DONE</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary w-100" type="submit">Add Task</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+      <div class="card-body">
+        <h6 class="card-title mb-2">Health</h6>
+        <div class="small text-muted">App + DB status</div>
+        <a class="btn btn-outline-secondary btn-sm mt-2" href="{{ url_for('health') }}" target="_blank">Open /health</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+          <h5 class="card-title mb-0">Tasks</h5>
+          <span class="badge text-bg-secondary">{{ tasks|length }} total</span>
+        </div>
+
+        <div class="table-responsive mt-3">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th style="width: 60px;">ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th style="width: 170px;">Created</th>
+                <th style="width: 180px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in tasks %}
+              <tr>
+                <td>{{ t.id }}</td>
+                <td>
+                  <div class="fw-semibold">{{ t.title }}</div>
+                  {% if t.description %}
+                    <div class="text-muted small">{{ t.description }}</div>
+                  {% endif %}
+                </td>
+
+                <td>
+                  <form method="post" action="{{ url_for('ui_update_status', task_id=t.id) }}" class="d-flex gap-2">
+                    <select name="status" class="form-select form-select-sm">
+                      <option value="PENDING" {% if t.status == "PENDING" %}selected{% endif %}>PENDING</option>
+                      <option value="IN_PROGRESS" {% if t.status == "IN_PROGRESS" %}selected{% endif %}>IN_PROGRESS</option>
+                      <option value="DONE" {% if t.status == "DONE" %}selected{% endif %}>DONE</option>
+                    </select>
+                    <button class="btn btn-outline-primary btn-sm" type="submit">Save</button>
+                  </form>
+                </td>
+
+                <td class="text-muted small">
+                  {{ t.created_at.strftime("%Y-%m-%d %H:%M") }}
+                </td>
+
+                <td>
+                  <form method="post" action="{{ url_for('ui_delete_task', task_id=t.id) }}" onsubmit="return confirm('Delete this task?');">
+                    <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+
+              {% if tasks|length == 0 %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  No tasks yet. Create your first task.
+                </td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
