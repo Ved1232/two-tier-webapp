@@ -1,40 +1,25 @@
 services:
-  db:
-    image: mysql:8.4
-    container_name: task-db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - db_data:/var/lib/mysql
-    networks:
-      - appnet
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
   web:
-    build:
-      context: ./app
-    container_name: task-web
-    restart: unless-stopped
+    image: 236195543546.dkr.ecr.us-east-1.amazonaws.com/two-tier-webapp:latest
+    ports:
+      - "5000:5000"
     env_file:
       - .env
     depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "${APP_PORT}:5000"
-    networks:
-      - appnet
+      - db
 
-networks:
-  appnet:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: taskdb
+      MYSQL_USER: taskuser
+      MYSQL_PASSWORD: taskpass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
 
 volumes:
-  db_data:
+  dbdata:
+
