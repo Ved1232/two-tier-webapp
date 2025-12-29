@@ -1,3 +1,4 @@
+1) What you are building (target CI/CD architecture)
 Goal: Every time you push to GitHub main, Jenkins will:
 1.	Checkout code from GitHub
 2.	Build Docker image for the Flask app
